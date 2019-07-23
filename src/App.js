@@ -13,23 +13,21 @@ const store = {
 };
 
 
-class Timers extends React.Component {
+class Timer extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       time: 60,
-      // active: false
+      running: false
     };
 
     store.subscribe(() => {
-      if(store.player !== props.user){
+      if(store.player !== props.user) {
+        this.setState({ running:true });
         this.interval = setInterval(() => {
-          this.setState(pastValue => ({
-            time: pastValue.time - 1,
-            // active: !this.state.active
-          }))
-        },1000)
+          this.setState(state => ({ time: state.time - 1 }));
+        },1000);
       }
     })
 
@@ -38,16 +36,19 @@ class Timers extends React.Component {
 
   render() {
     return (
-      <div className={this.state.active ? 'clock active' : 'clock'} onClick={this.handleClick}>
+      <div className={this.state.running ? 'clock active' : 'clock'} onClick={this.handleClick}>
         <span className='time'>{this.state.time > 0 ? this.state.time : 'LOSE'}</span>
       </div>
     )
   }
 
   handleClick() {
-    store.player = this.props.user;
-    clearInterval(this.interval);
-    store.change();
+    if(store.player !== this.props.user){
+      store.player = this.props.user;
+      this.setState({ running: false });
+      clearInterval(this.interval);
+      store.change();
+    }
   }
 }
 
@@ -57,8 +58,8 @@ class Clock extends React.Component {
       <div>
         <h1>Chess Clock Online</h1>
         <div className='board'>        
-          <Timers user='player1' />
-          <Timers user='player2' />
+          <Timer user='player1' />
+          <Timer user='player2' />
         </div>
       </div>
     );
